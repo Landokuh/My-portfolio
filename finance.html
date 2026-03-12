@@ -1,0 +1,1883 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VERTEX — Capital Redefined</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400;0,500;0,700;1,400&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --lime: #c8f135;
+        --navy: #08122e;
+        --navy2: #111d42;
+        --white: #ffffff;
+        --off: #f4f5f0;
+        --gray: #8a8f9a;
+        --blue: #1450f5;
+        --line: rgba(8, 18, 46, 0.1);
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--white);
+        color: var(--navy);
+        font-family: "Familjen Grotesk", sans-serif;
+        overflow-x: hidden;
+        cursor: none;
+      }
+
+      /* ── CURSOR ── */
+      .cur {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: var(--lime);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        mix-blend-mode: multiply;
+        transition:
+          width 0.25s,
+          height 0.25s;
+      }
+      .cur-ring {
+        position: fixed;
+        width: 38px;
+        height: 38px;
+        border: 1.5px solid var(--navy);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.3s,
+          height 0.3s,
+          border-color 0.3s;
+        opacity: 0.35;
+      }
+      .cur.h {
+        width: 18px;
+        height: 18px;
+        background: var(--blue);
+      }
+      .cur-ring.h {
+        width: 56px;
+        height: 56px;
+        border-color: var(--blue);
+        opacity: 0.5;
+      }
+
+      /* ── LOADER ── */
+      #loader {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: var(--navy);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        transition: transform 0.9s cubic-bezier(0.7, 0, 0.3, 1);
+      }
+      #loader.out {
+        transform: translateY(-100%);
+      }
+      .ldr-logo {
+        font-family: "Familjen Grotesk", sans-serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--lime);
+      }
+      .ldr-bar {
+        width: 220px;
+        height: 2px;
+        background: rgba(200, 241, 53, 0.15);
+        position: relative;
+        overflow: hidden;
+      }
+      .ldr-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        background: var(--lime);
+        animation: lFill 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+      @keyframes lFill {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+      .ldr-num {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        color: rgba(200, 241, 53, 0.4);
+        letter-spacing: 0.2em;
+      }
+
+      /* ── NAV ── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 26px 64px;
+        transition:
+          padding 0.4s,
+          background 0.4s,
+          border-color 0.4s;
+        border-bottom: 1px solid transparent;
+      }
+      nav.s {
+        padding: 16px 64px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(16px);
+        border-color: var(--line);
+      }
+      .logo {
+        font-family: "Familjen Grotesk", sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--navy);
+        text-decoration: none;
+      }
+      .nav-mid {
+        display: flex;
+        gap: 38px;
+        list-style: none;
+      }
+      .nav-mid a {
+        font-size: 0.8rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--gray);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.25s;
+      }
+      .nav-mid a:hover {
+        color: var(--navy);
+      }
+      .nav-btn {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        background: var(--navy);
+        color: var(--lime);
+        padding: 12px 28px;
+        text-decoration: none;
+        border: none;
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
+      .nav-btn:hover {
+        background: var(--blue);
+        color: var(--white);
+      }
+
+      /* ── HERO ── */
+      #hero {
+        min-height: 100vh;
+        background: var(--navy);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 0 64px 80px;
+      }
+
+      /* animated grid bg */
+      .hero-grid-bg {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(200, 241, 53, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(200, 241, 53, 0.05) 1px, transparent 1px);
+        background-size: 80px 80px;
+        animation: gridDrift 25s linear infinite;
+      }
+      @keyframes gridDrift {
+        from {
+          background-position: 0 0;
+        }
+        to {
+          background-position: 80px 80px;
+        }
+      }
+
+      /* glowing circle */
+      .hero-glow {
+        position: absolute;
+        width: 700px;
+        height: 700px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(20, 80, 245, 0.35) 0%,
+          transparent 65%
+        );
+        top: -200px;
+        right: -150px;
+        animation: glowPulse 6s ease infinite alternate;
+      }
+      @keyframes glowPulse {
+        from {
+          transform: scale(1);
+        }
+        to {
+          transform: scale(1.15);
+        }
+      }
+
+      .hero-lime-blob {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(200, 241, 53, 0.12) 0%,
+          transparent 65%
+        );
+        bottom: -100px;
+        left: 30%;
+      }
+
+      /* ticker strip inside hero */
+      .hero-ticker-strip {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: var(--lime);
+        padding: 10px 0;
+        overflow: hidden;
+      }
+      .hts-track {
+        display: flex;
+        white-space: nowrap;
+        animation: htsScroll 18s linear infinite;
+      }
+      .hts-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 20px;
+        padding: 0 20px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        color: var(--navy);
+      }
+      .hts-up {
+        color: var(--navy);
+        opacity: 0.6;
+      }
+      @keyframes htsScroll {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 2;
+      }
+      .hero-tag {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--lime);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .hero-tag-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--lime);
+        animation: bp 1.8s ease infinite;
+      }
+      @keyframes bp {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.3;
+          transform: scale(0.7);
+        }
+      }
+
+      .hero-h1 {
+        font-family: "Instrument Serif", serif;
+        font-size: clamp(3.5rem, 9vw, 10.5rem);
+        line-height: 0.92;
+        letter-spacing: -0.02em;
+        color: var(--white);
+        margin-bottom: 40px;
+      }
+      .hero-h1 em {
+        font-style: italic;
+        color: var(--lime);
+      }
+      .hero-h1 .outline {
+        color: transparent;
+        -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3);
+      }
+
+      .hero-bottom {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 60px;
+        align-items: flex-end;
+      }
+      .hero-desc {
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.5);
+        line-height: 1.75;
+        max-width: 520px;
+        font-weight: 400;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 16px;
+        flex-shrink: 0;
+      }
+      .btn-lime {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        background: var(--lime);
+        color: var(--navy);
+        padding: 18px 40px;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        transition: color 0.3s;
+      }
+      .btn-lime::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--blue);
+        transform: translateX(-110%);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .btn-lime:hover::before {
+        transform: translateX(0);
+      }
+      .btn-lime:hover {
+        color: var(--white);
+      }
+      .btn-lime span {
+        position: relative;
+        z-index: 1;
+      }
+      .btn-white {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 18px 40px;
+        text-decoration: none;
+        transition:
+          color 0.3s,
+          border-color 0.3s;
+      }
+      .btn-white:hover {
+        color: var(--white);
+        border-color: var(--white);
+      }
+
+      /* hero metrics bar */
+      .hero-metrics {
+        display: flex;
+        gap: 0;
+        margin-top: 60px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .hm-item {
+        flex: 1;
+        padding: 24px 0;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+      }
+      .hm-item:last-child {
+        border-right: none;
+      }
+      .hm-val {
+        font-family: "Instrument Serif", serif;
+        font-size: 2.2rem;
+        color: var(--white);
+        line-height: 1;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+      }
+      .hm-suf {
+        font-size: 0.6em;
+        color: var(--lime);
+      }
+      .hm-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.58rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.3);
+        margin-top: 8px;
+      }
+      .hm-delta {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.6rem;
+        color: var(--lime);
+        margin-top: 4px;
+      }
+
+      /* ── CLIENTS BAND ── */
+      .clients-band {
+        background: var(--off);
+        padding: 50px 64px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .cb-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--gray);
+        text-align: center;
+        margin-bottom: 32px;
+      }
+      .cb-logos {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 60px;
+        flex-wrap: wrap;
+      }
+      .cb-logo {
+        font-family: "Familjen Grotesk", sans-serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(8, 18, 46, 0.2);
+        transition: color 0.3s;
+        cursor: default;
+      }
+      .cb-logo:hover {
+        color: var(--navy);
+      }
+
+      /* ── SERVICES ── */
+      #services {
+        padding: 120px 64px;
+        background: var(--white);
+      }
+      .svc-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: end;
+        margin-bottom: 80px;
+      }
+      .sh-left .eyebrow {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: var(--blue);
+        margin-bottom: 14px;
+      }
+      .sh-title {
+        font-family: "Instrument Serif", serif;
+        font-size: clamp(2.5rem, 5vw, 5rem);
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        color: var(--navy);
+      }
+      .sh-title em {
+        font-style: italic;
+        color: var(--blue);
+      }
+      .sh-desc {
+        font-size: 0.95rem;
+        line-height: 1.8;
+        color: var(--gray);
+        max-width: 440px;
+      }
+
+      .svc-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border: 1px solid var(--line);
+      }
+      .svc-card {
+        padding: 48px 40px;
+        border-right: 1px solid var(--line);
+        position: relative;
+        overflow: hidden;
+        transition: background 0.35s;
+      }
+      .svc-card:last-child {
+        border-right: none;
+      }
+      .svc-card:hover {
+        background: var(--navy);
+      }
+      .svc-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--lime);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .svc-card:hover::before {
+        transform: scaleX(1);
+      }
+      .svc-num {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.25em;
+        color: var(--gray);
+        margin-bottom: 32px;
+        transition: color 0.3s;
+      }
+      .svc-card:hover .svc-num {
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .svc-icon {
+        width: 48px;
+        height: 48px;
+        border: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 28px;
+        transition:
+          border-color 0.3s,
+          background 0.3s;
+        color: var(--navy);
+      }
+      .svc-card:hover .svc-icon {
+        border-color: var(--lime);
+        background: rgba(200, 241, 53, 0.1);
+        color: var(--lime);
+      }
+      .svc-title {
+        font-family: "Instrument Serif", serif;
+        font-size: 1.5rem;
+        color: var(--navy);
+        margin-bottom: 16px;
+        transition: color 0.3s;
+        letter-spacing: -0.01em;
+      }
+      .svc-card:hover .svc-title {
+        color: var(--white);
+      }
+      .svc-text {
+        font-size: 0.88rem;
+        line-height: 1.75;
+        color: var(--gray);
+        transition: color 0.3s;
+      }
+      .svc-card:hover .svc-text {
+        color: rgba(255, 255, 255, 0.5);
+      }
+      .svc-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--blue);
+        text-decoration: none;
+        margin-top: 32px;
+        transition: color 0.3s;
+      }
+      .svc-card:hover .svc-link {
+        color: var(--lime);
+      }
+
+      /* ── PROOF ── */
+      #proof {
+        background: var(--lime);
+        padding: 100px 64px;
+        position: relative;
+        overflow: hidden;
+      }
+      #proof::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(8, 18, 46, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(8, 18, 46, 0.04) 1px, transparent 1px);
+        background-size: 50px 50px;
+      }
+      .proof-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+      }
+      .proof-title {
+        font-family: "Instrument Serif", serif;
+        font-size: clamp(2.5rem, 5vw, 5.5rem);
+        line-height: 0.92;
+        letter-spacing: -0.02em;
+        color: var(--navy);
+        position: relative;
+        z-index: 1;
+      }
+      .proof-title em {
+        font-style: italic;
+      }
+      .proof-title .outline {
+        color: transparent;
+        -webkit-text-stroke: 1.5px var(--navy);
+        display: block;
+        opacity: 0.35;
+      }
+      .proof-metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px;
+        position: relative;
+        z-index: 1;
+      }
+      .pm-item {
+        background: var(--navy);
+        padding: 36px 32px;
+        transition: background 0.3s;
+      }
+      .pm-item:hover {
+        background: var(--navy2);
+      }
+      .pm-val {
+        font-family: "Instrument Serif", serif;
+        font-size: 3rem;
+        color: var(--lime);
+        line-height: 1;
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+      }
+      .pm-suf {
+        font-size: 0.45em;
+        color: rgba(200, 241, 53, 0.6);
+      }
+      .pm-label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.58rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.35);
+        margin-top: 10px;
+      }
+      .pm-delta {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.6rem;
+        color: var(--lime);
+        margin-top: 6px;
+      }
+
+      /* ── CASE STUDIES ── */
+      #cases {
+        padding: 120px 64px;
+        background: var(--white);
+      }
+      .case-header {
+        margin-bottom: 70px;
+      }
+      .case-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .case-row {
+        display: grid;
+        grid-template-columns: 80px 1fr 2fr auto;
+        gap: 40px;
+        align-items: center;
+        padding: 32px 0;
+        border-bottom: 1px solid var(--line);
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s;
+        cursor: none;
+      }
+      .case-row::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--navy);
+        transform: translateX(-101%);
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 0;
+      }
+      .case-row:hover::before {
+        transform: translateX(0);
+      }
+      .case-row > * {
+        position: relative;
+        z-index: 1;
+      }
+      .cr-num {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.2em;
+        color: var(--gray);
+        transition: color 0.3s;
+      }
+      .case-row:hover .cr-num {
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .cr-name {
+        font-family: "Instrument Serif", serif;
+        font-size: 1.6rem;
+        color: var(--navy);
+        transition: color 0.3s;
+        letter-spacing: -0.01em;
+      }
+      .case-row:hover .cr-name {
+        color: var(--white);
+      }
+      .cr-desc {
+        font-size: 0.88rem;
+        color: var(--gray);
+        line-height: 1.65;
+        transition: color 0.3s;
+      }
+      .case-row:hover .cr-desc {
+        color: rgba(255, 255, 255, 0.45);
+      }
+      .cr-tag {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        background: var(--off);
+        color: var(--navy);
+        padding: 8px 16px;
+        white-space: nowrap;
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
+      .case-row:hover .cr-tag {
+        background: var(--lime);
+        color: var(--navy);
+      }
+
+      /* ── VISUAL BREAK ── */
+      .visual-break {
+        height: 500px;
+        position: relative;
+        overflow: hidden;
+      }
+      .vb-img {
+        position: absolute;
+        inset: -60px 0;
+        background: url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=85")
+          center/cover no-repeat;
+        filter: brightness(0.45) saturate(0.6);
+        will-change: transform;
+      }
+      .vb-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to right,
+          rgba(8, 18, 46, 0.75) 0%,
+          rgba(8, 18, 46, 0.3) 60%,
+          rgba(8, 18, 46, 0.75) 100%
+        );
+      }
+      .vb-content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0 40px;
+      }
+      .vb-quote {
+        font-family: "Instrument Serif", serif;
+        font-size: clamp(1.5rem, 3.5vw, 3rem);
+        font-style: italic;
+        color: var(--white);
+        line-height: 1.35;
+        max-width: 900px;
+        margin-bottom: 20px;
+      }
+      .vb-attr {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--lime);
+      }
+
+      /* ── TEAM ── */
+      #team {
+        padding: 120px 64px;
+        background: var(--off);
+      }
+      .team-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 3px;
+        margin-top: 70px;
+      }
+      .team-card {
+        background: var(--white);
+        overflow: hidden;
+        position: relative;
+        transition: transform 0.4s ease;
+      }
+      .team-card:hover {
+        transform: translateY(-6px);
+      }
+      .tc-img {
+        aspect-ratio: 3/4;
+        overflow: hidden;
+        position: relative;
+      }
+      .tc-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(30%) saturate(0.9);
+        transition:
+          transform 0.7s ease,
+          filter 0.5s;
+      }
+      .team-card:hover .tc-img img {
+        transform: scale(1.06);
+        filter: grayscale(0) saturate(1.1);
+      }
+      .tc-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          rgba(8, 18, 46, 0.7) 0%,
+          transparent 50%
+        );
+        opacity: 0;
+        transition: opacity 0.4s;
+      }
+      .team-card:hover .tc-overlay {
+        opacity: 1;
+      }
+      .tc-body {
+        padding: 24px;
+      }
+      .tc-name {
+        font-family: "Instrument Serif", serif;
+        font-size: 1.2rem;
+        color: var(--navy);
+        letter-spacing: -0.01em;
+      }
+      .tc-role {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--gray);
+        margin-top: 4px;
+      }
+      .tc-line {
+        height: 2px;
+        background: var(--lime);
+        margin-top: 16px;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .team-card:hover .tc-line {
+        transform: scaleX(1);
+      }
+
+      /* ── CTA ── */
+      #cta {
+        background: var(--navy);
+        padding: 140px 64px;
+        position: relative;
+        overflow: hidden;
+      }
+      .cta-bg {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(200, 241, 53, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(200, 241, 53, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        animation: gridDrift 20s linear infinite;
+      }
+      .cta-blob1 {
+        position: absolute;
+        top: -200px;
+        left: -200px;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(20, 80, 245, 0.2) 0%,
+          transparent 65%
+        );
+      }
+      .cta-blob2 {
+        position: absolute;
+        bottom: -200px;
+        right: -100px;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(200, 241, 53, 0.1) 0%,
+          transparent 65%
+        );
+      }
+      .cta-inner {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 80px;
+        align-items: center;
+      }
+      .cta-title {
+        font-family: "Instrument Serif", serif;
+        font-size: clamp(3rem, 7vw, 7.5rem);
+        line-height: 0.92;
+        letter-spacing: -0.02em;
+        color: var(--white);
+      }
+      .cta-title em {
+        font-style: italic;
+        color: var(--lime);
+      }
+      .cta-title .outline {
+        color: transparent;
+        -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.2);
+        display: block;
+      }
+      .cta-right {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 280px;
+      }
+      .cta-desc {
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.4);
+        line-height: 1.7;
+        margin-bottom: 12px;
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        background: var(--navy2);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 70px 64px 36px;
+        color: var(--white);
+      }
+      .ft-top {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 60px;
+        margin-bottom: 60px;
+      }
+      .ft-logo {
+        font-family: "Familjen Grotesk", sans-serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--white);
+        margin-bottom: 14px;
+        display: block;
+        text-decoration: none;
+      }
+      .ft-about {
+        font-size: 0.88rem;
+        line-height: 1.75;
+        color: rgba(255, 255, 255, 0.3);
+      }
+      .ft-lime-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: var(--lime);
+        border-radius: 50%;
+        margin-left: 4px;
+        vertical-align: middle;
+      }
+      .ft-col h4 {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.6rem;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.25);
+        margin-bottom: 18px;
+      }
+      .ft-col ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .ft-col a {
+        font-size: 0.88rem;
+        color: rgba(255, 255, 255, 0.4);
+        text-decoration: none;
+        transition: color 0.25s;
+      }
+      .ft-col a:hover {
+        color: var(--white);
+      }
+      .ft-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 28px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .ft-copy {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+        color: rgba(255, 255, 255, 0.2);
+      }
+      .ft-legal {
+        display: flex;
+        gap: 24px;
+      }
+      .ft-legal a {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.58rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.2);
+        text-decoration: none;
+        transition: color 0.25s;
+      }
+      .ft-legal a:hover {
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      /* ── REVEAL ── */
+      .rv {
+        opacity: 0;
+        transform: translateY(32px);
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s ease;
+      }
+      .rv.on {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .rv-l {
+        opacity: 0;
+        transform: translateX(-40px);
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s ease;
+      }
+      .rv-l.on {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .rv-r {
+        opacity: 0;
+        transform: translateX(40px);
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s ease;
+      }
+      .rv-r.on {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1100px) {
+        nav {
+          padding: 20px 32px;
+        }
+        nav.s {
+          padding: 14px 32px;
+        }
+        #hero,
+        #services,
+        #proof,
+        #cases,
+        #team,
+        #cta,
+        footer {
+          padding-left: 32px;
+          padding-right: 32px;
+        }
+        .clients-band {
+          padding: 40px 32px;
+        }
+        .svc-header,
+        .proof-layout,
+        .cta-inner {
+          grid-template-columns: 1fr;
+        }
+        .svc-grid {
+          grid-template-columns: 1fr;
+        }
+        .svc-card {
+          border-right: none;
+          border-bottom: 1px solid var(--line);
+        }
+        .ft-top {
+          grid-template-columns: 1fr 1fr;
+          gap: 40px;
+        }
+        .team-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .case-row {
+          grid-template-columns: 60px 1fr;
+          gap: 20px;
+        }
+        .cr-desc,
+        .cr-tag {
+          display: none;
+        }
+      }
+      @media (max-width: 640px) {
+        .nav-mid {
+          display: none;
+        }
+        .hero-metrics {
+          flex-wrap: wrap;
+        }
+        .hm-item {
+          flex: 1 1 40%;
+          border-right: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .proof-metrics {
+          grid-template-columns: 1fr;
+        }
+        .team-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .ft-top {
+          grid-template-columns: 1fr;
+        }
+        .hero-bottom {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOADER -->
+    <div id="loader">
+      <div class="ldr-logo">Vertex Capital</div>
+      <div class="ldr-bar"><div class="ldr-fill"></div></div>
+      <div class="ldr-num" id="ldrN">0%</div>
+    </div>
+
+    <!-- CURSOR -->
+    <div class="cur" id="cur"></div>
+    <div class="cur-ring" id="curRing"></div>
+
+    <!-- NAV -->
+    <nav id="nav">
+      <a href="#" class="logo">Vertex</a>
+      <ul class="nav-mid">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#proof">Results</a></li>
+        <li><a href="#cases">Case Studies</a></li>
+        <li><a href="#team">Team</a></li>
+      </ul>
+      <a href="#cta" class="nav-btn">Get Started</a>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-grid-bg"></div>
+      <div class="hero-glow"></div>
+      <div class="hero-lime-blob"></div>
+      <div class="hero-ticker-strip">
+        <div class="hts-track" id="htsTrack">
+          <div class="hts-item">
+            S&amp;P 500 <span class="hts-up">↑ 0.84%</span>
+          </div>
+          <div class="hts-item">NASDAQ <span class="hts-up">↑ 1.23%</span></div>
+          <div class="hts-item">
+            FTSE 100 <span class="hts-up">↑ 0.41%</span>
+          </div>
+          <div class="hts-item">
+            10Y UST <span style="color: #e8151b">↓ 4.22%</span>
+          </div>
+          <div class="hts-item">
+            USD/EUR <span class="hts-up">↑ 1.0847</span>
+          </div>
+          <div class="hts-item">Gold <span class="hts-up">↑ $2,184</span></div>
+          <div class="hts-item">BTC <span class="hts-up">↑ $71,240</span></div>
+          <div class="hts-item">
+            S&amp;P 500 <span class="hts-up">↑ 0.84%</span>
+          </div>
+          <div class="hts-item">NASDAQ <span class="hts-up">↑ 1.23%</span></div>
+          <div class="hts-item">
+            FTSE 100 <span class="hts-up">↑ 0.41%</span>
+          </div>
+          <div class="hts-item">
+            10Y UST <span style="color: #e8151b">↓ 4.22%</span>
+          </div>
+          <div class="hts-item">
+            USD/EUR <span class="hts-up">↑ 1.0847</span>
+          </div>
+          <div class="hts-item">Gold <span class="hts-up">↑ $2,184</span></div>
+          <div class="hts-item">BTC <span class="hts-up">↑ $71,240</span></div>
+        </div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-tag">
+          <span class="hero-tag-dot"></span>Now managing $4.2B in assets
+        </div>
+        <h1 class="hero-h1">
+          Capital that<br />
+          <em>moves</em><br />
+          <span class="outline">forward.</span>
+        </h1>
+        <div class="hero-bottom">
+          <p class="hero-desc">
+            Vertex partners with ambitious institutions and family offices to
+            grow, protect, and deploy capital with precision — backed by 30
+            years of market intelligence.
+          </p>
+          <div class="hero-actions">
+            <a href="#cta" class="btn-lime"
+              ><span>Start a Conversation</span></a
+            >
+            <a href="#cases" class="btn-white">View Results</a>
+          </div>
+        </div>
+        <div class="hero-metrics">
+          <div class="hm-item">
+            <div class="hm-val">
+              <span class="cnt" data-t="4.2">0</span
+              ><span class="hm-suf">B+</span>
+            </div>
+            <div class="hm-label">Assets Under Management</div>
+            <div class="hm-delta">↑ 18% YoY</div>
+          </div>
+          <div class="hm-item">
+            <div class="hm-val">
+              <span class="cnt" data-t="31">0</span
+              ><span class="hm-suf">yr</span>
+            </div>
+            <div class="hm-label">Market Expertise</div>
+            <div class="hm-delta">Since 1994</div>
+          </div>
+          <div class="hm-item">
+            <div class="hm-val">
+              <span class="cnt" data-t="94">0</span
+              ><span class="hm-suf">%</span>
+            </div>
+            <div class="hm-label">Client Retention Rate</div>
+            <div class="hm-delta">↑ 3% vs 2023</div>
+          </div>
+          <div class="hm-item">
+            <div class="hm-val">
+              <span class="cnt" data-t="220">0</span
+              ><span class="hm-suf">+</span>
+            </div>
+            <div class="hm-label">Institutional Clients</div>
+            <div class="hm-delta">Across 28 markets</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLIENTS BAND -->
+    <div class="clients-band">
+      <div class="cb-label">Trusted by leading institutions worldwide</div>
+      <div class="cb-logos">
+        <div class="cb-logo">BlackRock</div>
+        <div class="cb-logo">Allianz</div>
+        <div class="cb-logo">Vanguard</div>
+        <div class="cb-logo">Bridgewater</div>
+        <div class="cb-logo">Carlyle</div>
+        <div class="cb-logo">PIMCO</div>
+        <div class="cb-logo">Apollo</div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <section id="services">
+      <div class="svc-header">
+        <div class="rv">
+          <div class="eyebrow">What we do</div>
+          <h2 class="sh-title">Built for<br /><em>bold capital.</em></h2>
+        </div>
+        <p class="sh-desc rv-r" style="transition-delay: 0.1s">
+          We don't offer cookie-cutter portfolios. Every mandate is constructed
+          around the client's unique risk appetite, liquidity needs, and
+          generational goals.
+        </p>
+      </div>
+      <div class="svc-grid">
+        <div class="svc-card rv" style="transition-delay: 0.05s">
+          <div class="svc-num">01</div>
+          <div class="svc-icon">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path d="M3 3v18h18" />
+              <path d="m19 9-5 5-4-4-3 3" />
+            </svg>
+          </div>
+          <div class="svc-title">Asset Management</div>
+          <p class="svc-text">
+            Active and passive strategies across public equities, fixed income,
+            and alternatives — built on proprietary factor models refined over
+            three decades.
+          </p>
+          <a href="#" class="svc-link">Learn more →</a>
+        </div>
+        <div class="svc-card rv" style="transition-delay: 0.12s">
+          <div class="svc-num">02</div>
+          <div class="svc-icon">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+          </div>
+          <div class="svc-title">Private Wealth</div>
+          <p class="svc-text">
+            White-glove advisory for family offices and ultra-high-net-worth
+            individuals navigating generational wealth transfer, tax
+            optimisation, and estate planning.
+          </p>
+          <a href="#" class="svc-link">Learn more →</a>
+        </div>
+        <div class="svc-card rv" style="transition-delay: 0.2s">
+          <div class="svc-num">03</div>
+          <div class="svc-icon">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <rect x="2" y="7" width="20" height="14" rx="2" />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
+          </div>
+          <div class="svc-title">Institutional Advisory</div>
+          <p class="svc-text">
+            Strategic allocation, liability-driven investment, and portfolio
+            construction for pension funds, endowments, sovereign wealth funds,
+            and insurance companies.
+          </p>
+          <a href="#" class="svc-link">Learn more →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROOF -->
+    <section id="proof">
+      <div class="proof-layout">
+        <div class="rv-l">
+          <h2 class="proof-title">
+            Numbers<br /><em>that hold</em><br />
+            <span class="outline">under pressure.</span>
+          </h2>
+        </div>
+        <div class="proof-metrics rv-r" style="transition-delay: 0.12s">
+          <div class="pm-item">
+            <div class="pm-val">
+              <span class="cnt" data-t="22">0</span
+              ><span class="pm-suf">%</span>
+            </div>
+            <div class="pm-label">Avg. annual return</div>
+            <div class="pm-delta">↑ vs 14% benchmark</div>
+          </div>
+          <div class="pm-item">
+            <div class="pm-val">
+              <span class="cnt" data-t="4.2">0</span
+              ><span class="pm-suf">B</span>
+            </div>
+            <div class="pm-label">Total AUM</div>
+            <div class="pm-delta">↑ 18% YoY</div>
+          </div>
+          <div class="pm-item">
+            <div class="pm-val">
+              <span class="cnt" data-t="31">0</span
+              ><span class="pm-suf">yr</span>
+            </div>
+            <div class="pm-label">Years operating</div>
+            <div class="pm-delta">Since 1994</div>
+          </div>
+          <div class="pm-item">
+            <div class="pm-val"><span class="cnt" data-t="0.82">0</span></div>
+            <div class="pm-label">Sharpe ratio (5yr avg)</div>
+            <div class="pm-delta">Top decile globally</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CASES -->
+    <section id="cases">
+      <div class="case-header rv">
+        <div
+          class="eyebrow"
+          style="
+            font-family: &quot;IBM Plex Mono&quot;, monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 14px;
+          "
+        >
+          Selected Mandates
+        </div>
+        <h2
+          style="
+            font-family: &quot;Instrument Serif&quot;, serif;
+            font-size: clamp(2.5rem, 5vw, 5rem);
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+          "
+        >
+          Results that <em>speak.</em>
+        </h2>
+      </div>
+      <div class="case-grid">
+        <div class="case-row rv" style="transition-delay: 0.04s">
+          <div class="cr-num">01</div>
+          <div class="cr-name">Nordic Pension Restructure</div>
+          <div class="cr-desc">
+            Rebuilt a €1.4B liability-driven portfolio for a Scandinavian
+            pension fund — improved funding ratio from 91% to 107% in 36 months.
+          </div>
+          <div class="cr-tag">Institutional · Fixed Income</div>
+        </div>
+        <div class="case-row rv" style="transition-delay: 0.08s">
+          <div class="cr-num">02</div>
+          <div class="cr-name">Gulf Family Office</div>
+          <div class="cr-desc">
+            Structured a diversified multi-asset mandate for a GCC family office
+            with $620M in AUM — targeting 18% net return over a 7-year horizon.
+          </div>
+          <div class="cr-tag">Private Wealth · Alternatives</div>
+        </div>
+        <div class="case-row rv" style="transition-delay: 0.12s">
+          <div class="cr-num">03</div>
+          <div class="cr-name">University Endowment</div>
+          <div class="cr-desc">
+            10-year investment policy overhaul for a top-20 US university
+            endowment. Introduced ESG overlays and long/short equity sleeves.
+          </div>
+          <div class="cr-tag">Endowment · ESG</div>
+        </div>
+        <div class="case-row rv" style="transition-delay: 0.16s">
+          <div class="cr-num">04</div>
+          <div class="cr-name">EM Sovereign Debt Strategy</div>
+          <div class="cr-desc">
+            Co-managed a $900M emerging markets debt allocation through three
+            election cycles and two currency crises with net positive alpha.
+          </div>
+          <div class="cr-tag">EM · Sovereign Debt</div>
+        </div>
+        <div class="case-row rv" style="transition-delay: 0.2s">
+          <div class="cr-num">05</div>
+          <div class="cr-name">Technology Sector Rotation</div>
+          <div class="cr-desc">
+            Identified and executed a sector rotation strategy into global tech
+            infrastructure ahead of the 2023 AI wave. Delivered 38% in 14
+            months.
+          </div>
+          <div class="cr-tag">Equities · Tech Sector</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISUAL BREAK -->
+    <div class="visual-break">
+      <div class="vb-img" id="vbImg"></div>
+      <div class="vb-overlay"></div>
+      <div class="vb-content">
+        <p class="vb-quote rv">
+          "The best investments are made with patience, rigour, and an
+          unshakeable willingness to be contrarian when the fundamentals demand
+          it."
+        </p>
+        <p class="vb-attr rv" style="transition-delay: 0.15s">
+          — James Whitfield, Founder & CIO
+        </p>
+      </div>
+    </div>
+
+    <!-- TEAM -->
+    <section id="team">
+      <div class="rv">
+        <div
+          style="
+            font-family: &quot;IBM Plex Mono&quot;, monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 14px;
+          "
+        >
+          The Partnership
+        </div>
+        <h2
+          style="
+            font-family: &quot;Instrument Serif&quot;, serif;
+            font-size: clamp(2.5rem, 5vw, 5rem);
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+          "
+        >
+          Minds behind <em>the moves.</em>
+        </h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card rv" style="transition-delay: 0.06s">
+          <div class="tc-img">
+            <img
+              src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=85"
+              alt="James Whitfield"
+            />
+            <div class="tc-overlay"></div>
+          </div>
+          <div class="tc-body">
+            <div class="tc-name">James Whitfield</div>
+            <div class="tc-role">Founder & CIO</div>
+            <div class="tc-line"></div>
+          </div>
+        </div>
+        <div class="team-card rv" style="transition-delay: 0.12s">
+          <div class="tc-img">
+            <img
+              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=85"
+              alt="Priya Nair"
+            />
+            <div class="tc-overlay"></div>
+          </div>
+          <div class="tc-body">
+            <div class="tc-name">Priya Nair</div>
+            <div class="tc-role">Head of Private Wealth</div>
+            <div class="tc-line"></div>
+          </div>
+        </div>
+        <div class="team-card rv" style="transition-delay: 0.18s">
+          <div class="tc-img">
+            <img
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&q=85"
+              alt="Marcus Cole"
+            />
+            <div class="tc-overlay"></div>
+          </div>
+          <div class="tc-body">
+            <div class="tc-name">Marcus Cole</div>
+            <div class="tc-role">Chief Risk Officer</div>
+            <div class="tc-line"></div>
+          </div>
+        </div>
+        <div class="team-card rv" style="transition-delay: 0.24s">
+          <div class="tc-img">
+            <img
+              src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&q=85"
+              alt="Sofia Reinholt"
+            />
+            <div class="tc-overlay"></div>
+          </div>
+          <div class="tc-body">
+            <div class="tc-name">Sofia Reinholt</div>
+            <div class="tc-role">Head of ESG Strategy</div>
+            <div class="tc-line"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="cta">
+      <div class="cta-bg"></div>
+      <div class="cta-blob1"></div>
+      <div class="cta-blob2"></div>
+      <div class="cta-inner">
+        <h2 class="cta-title rv-l">
+          Let's build<br />
+          <em>something</em><br />
+          <span class="outline">lasting.</span>
+        </h2>
+        <div class="cta-right rv-r" style="transition-delay: 0.15s">
+          <p class="cta-desc">
+            Whether you're a family office, institution, or foundation — Vertex
+            has the depth and discipline to be your long-term capital partner.
+          </p>
+          <a href="#" class="btn-lime" style="text-align: center"
+            ><span>Schedule a Meeting</span></a
+          >
+          <a href="#" class="btn-white" style="text-align: center"
+            >Download Brochure</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="ft-top">
+        <div>
+          <a href="#" class="ft-logo"
+            >Vertex<span class="ft-lime-dot"></span
+          ></a>
+          <p class="ft-about">
+            A leading independent investment management firm with $4.2B in AUM,
+            serving institutions and family offices across 28 global markets
+            since 1994.
+          </p>
+        </div>
+        <div class="ft-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#">Asset Management</a></li>
+            <li><a href="#">Private Wealth</a></li>
+            <li><a href="#">Institutional Advisory</a></li>
+            <li><a href="#">ESG Strategies</a></li>
+          </ul>
+        </div>
+        <div class="ft-col">
+          <h4>Firm</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Leadership</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+          </ul>
+        </div>
+        <div class="ft-col">
+          <h4>Offices</h4>
+          <ul>
+            <li><a href="#">New York</a></li>
+            <li><a href="#">London</a></li>
+            <li><a href="#">Singapore</a></li>
+            <li><a href="#">Dubai</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ft-bottom">
+        <p class="ft-copy">
+          © 2025 Vertex Capital Management LLC. All rights reserved. Past
+          performance is not indicative of future results.
+        </p>
+        <div class="ft-legal">
+          <a href="#">Privacy</a>
+          <a href="#">Disclosures</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // LOADER
+      let p = 0;
+      const lN = document.getElementById("ldrN");
+      const iv = setInterval(() => {
+        p = Math.min(p + Math.random() * 16, 99);
+        lN.textContent = Math.floor(p) + "%";
+      }, 130);
+      window.addEventListener("load", () => {
+        clearInterval(iv);
+        lN.textContent = "100%";
+        setTimeout(
+          () => document.getElementById("loader").classList.add("out"),
+          2200,
+        );
+      });
+
+      // CURSOR
+      const cur = document.getElementById("cur"),
+        ring = document.getElementById("curRing");
+      let mx = 0,
+        my = 0,
+        rx = 0,
+        ry = 0;
+      document.addEventListener("mousemove", (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+        cur.style.left = mx + "px";
+        cur.style.top = my + "px";
+      });
+      (function a() {
+        rx += (mx - rx) * 0.1;
+        ry += (my - ry) * 0.1;
+        ring.style.left = rx + "px";
+        ring.style.top = ry + "px";
+        requestAnimationFrame(a);
+      })();
+      document
+        .querySelectorAll("a,button,.svc-card,.case-row,.team-card,.pm-item")
+        .forEach((el) => {
+          el.addEventListener("mouseenter", () => {
+            cur.classList.add("h");
+            ring.classList.add("h");
+          });
+          el.addEventListener("mouseleave", () => {
+            cur.classList.remove("h");
+            ring.classList.remove("h");
+          });
+        });
+
+      // NAV
+      const nav = document.getElementById("nav");
+      window.addEventListener("scroll", () =>
+        nav.classList.toggle("s", scrollY > 60),
+      );
+
+      // PARALLAX
+      const vbImg = document.getElementById("vbImg");
+      window.addEventListener("scroll", () => {
+        const s = vbImg.closest(".visual-break"),
+          r = s.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) {
+          const pr = -r.top / (window.innerHeight + r.height);
+          vbImg.style.transform = `translateY(${pr * 70}px)`;
+        }
+      });
+
+      // REVEAL
+      document.querySelectorAll(".rv,.rv-l,.rv-r").forEach((el) => {
+        new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) e.target.classList.add("on");
+          },
+          { threshold: 0.08, rootMargin: "0px 0px -30px 0px" },
+        ).observe(el);
+      });
+
+      // COUNTERS
+      function animCnt(el) {
+        const t = parseFloat(el.dataset.t),
+          dur = 1800,
+          s = performance.now();
+        (function u(now) {
+          const prog = Math.min((now - s) / dur, 1);
+          const ease = 1 - Math.pow(1 - prog, 3);
+          const v = ease * t;
+          el.textContent =
+            t % 1 !== 0 ? v.toFixed(2) : Math.floor(v).toLocaleString();
+          if (prog < 1) requestAnimationFrame(u);
+          else el.textContent = t % 1 !== 0 ? t.toFixed(2) : t.toLocaleString();
+        })(s);
+      }
+      let counted = false;
+      new IntersectionObserver(
+        ([e]) => {
+          if (e.isIntersecting && !counted) {
+            counted = true;
+            document.querySelectorAll(".cnt").forEach(animCnt);
+          }
+        },
+        { threshold: 0.3 },
+      ).observe(document.querySelector("#hero"));
+
+      let counted2 = false;
+      const proof = document.getElementById("proof");
+      new IntersectionObserver(
+        ([e]) => {
+          if (e.isIntersecting && !counted2) {
+            counted2 = true;
+            proof.querySelectorAll(".cnt").forEach(animCnt);
+          }
+        },
+        { threshold: 0.3 },
+      ).observe(proof);
+
+      // SMOOTH SCROLL
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const t = document.querySelector(a.getAttribute("href"));
+          if (t) {
+            e.preventDefault();
+            t.scrollIntoView({ behavior: "smooth" });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
