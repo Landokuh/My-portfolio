@@ -1,0 +1,1752 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BRUTALE — Eat Loud</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Unbounded:wght@300;400;700;900&family=Archivo:ital,wght@0,400;0,700;1,400;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --red: #e8151b;
+        --yellow: #f5e642;
+        --black: #0d0d0d;
+        --white: #f7f2e8;
+        --green: #1a7a3c;
+        --orange: #f07d1a;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--black);
+        color: var(--white);
+        font-family: "Archivo", sans-serif;
+        overflow-x: hidden;
+        cursor: none;
+      }
+
+      /* ── CURSOR ── */
+      .c-dot {
+        position: fixed;
+        width: 16px;
+        height: 16px;
+        background: var(--yellow);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        mix-blend-mode: difference;
+        transition: transform 0.15s;
+      }
+      .c-txt {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9998;
+        transform: translate(-50%, -50%);
+        font-family: "Anton", sans-serif;
+        font-size: 0.55rem;
+        letter-spacing: 0.15em;
+        color: var(--yellow);
+        opacity: 0;
+        transition: opacity 0.3s;
+        white-space: nowrap;
+      }
+
+      /* ── LOADER ── */
+      #loader {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: var(--red);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: clip-path 0.8s cubic-bezier(0.7, 0, 0.3, 1);
+      }
+      #loader.out {
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+      }
+      .ldr-word {
+        font-family: "Anton", sans-serif;
+        font-size: clamp(5rem, 15vw, 14rem);
+        letter-spacing: -0.02em;
+        color: var(--yellow);
+        line-height: 1;
+        animation: ldrWobble 1.5s ease infinite alternate;
+      }
+      @keyframes ldrWobble {
+        from {
+          transform: skewX(-4deg) scaleY(1.02);
+        }
+        to {
+          transform: skewX(4deg) scaleY(0.98);
+        }
+      }
+      .ldr-sub {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.5em;
+        text-transform: uppercase;
+        color: var(--yellow);
+        opacity: 0.6;
+        margin-top: 12px;
+      }
+
+      /* ── NOISE ── */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+        opacity: 0.035;
+        pointer-events: none;
+        z-index: 9990;
+        animation: nz 0.15s steps(1) infinite;
+      }
+      @keyframes nz {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        33% {
+          transform: translate(-1px, 1px);
+        }
+        66% {
+          transform: translate(1px, -1px);
+        }
+      }
+
+      /* ── NAV ── */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 48px;
+        mix-blend-mode: difference;
+      }
+      .logo {
+        font-family: "Anton", sans-serif;
+        font-size: 2.2rem;
+        letter-spacing: 0.05em;
+        color: var(--white);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .logo:hover {
+        color: var(--yellow);
+      }
+      .nav-r {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 32px;
+        list-style: none;
+      }
+      .nav-links a {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--white);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--yellow);
+      }
+      .nav-res {
+        font-family: "Anton", sans-serif;
+        font-size: 0.9rem;
+        letter-spacing: 0.1em;
+        background: var(--yellow);
+        color: var(--black);
+        padding: 12px 28px;
+        text-decoration: none;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        transition:
+          background 0.3s,
+          color 0.3s;
+        mix-blend-mode: normal;
+      }
+      .nav-res:hover {
+        background: var(--red);
+        color: var(--white);
+      }
+
+      /* ── HERO ── */
+      #hero {
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 0 0 60px;
+      }
+      .hero-bg {
+        position: absolute;
+        inset: 0;
+        background: url("https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&q=85")
+          center/cover no-repeat;
+        filter: brightness(0.35) saturate(1.4) contrast(1.1);
+        transform: scale(1.05);
+        animation: hzoom 18s ease infinite alternate;
+      }
+      @keyframes hzoom {
+        from {
+          transform: scale(1.05);
+        }
+        to {
+          transform: scale(1.12) translateX(-1%);
+        }
+      }
+      .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          var(--black) 0%,
+          rgba(13, 13, 13, 0.4) 50%,
+          transparent 100%
+        );
+      }
+
+      /* diagonal stripe */
+      .hero-stripe {
+        position: absolute;
+        top: -10%;
+        left: -5%;
+        width: 55%;
+        height: 130%;
+        background: var(--red);
+        transform: skewX(-8deg);
+        opacity: 0.92;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        mix-blend-mode: multiply;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 10;
+        padding: 0 48px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: flex-end;
+      }
+      .hero-tag {
+        display: inline-block;
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--yellow);
+        border: 1px solid var(--yellow);
+        padding: 7px 16px;
+        margin-bottom: 24px;
+        animation: tagPulse 3s ease infinite;
+      }
+      @keyframes tagPulse {
+        0%,
+        100% {
+          border-color: var(--yellow);
+        }
+        50% {
+          border-color: var(--orange);
+          color: var(--orange);
+        }
+      }
+      .hero-h1 {
+        font-family: "Anton", sans-serif;
+        font-size: clamp(5rem, 13vw, 15rem);
+        line-height: 0.88;
+        letter-spacing: -0.01em;
+        color: var(--white);
+        position: relative;
+      }
+      .hero-h1 .line2 {
+        color: var(--yellow);
+        display: block;
+        -webkit-text-stroke: 2px var(--yellow);
+        color: transparent;
+        animation: strokeFlick 6s ease infinite;
+      }
+      @keyframes strokeFlick {
+        0%,
+        90%,
+        100% {
+          color: transparent;
+          -webkit-text-stroke: 2px var(--yellow);
+        }
+        92% {
+          color: var(--yellow);
+          -webkit-text-stroke: 0px;
+        }
+        94% {
+          color: transparent;
+          -webkit-text-stroke: 2px var(--yellow);
+        }
+        96% {
+          color: var(--yellow);
+          -webkit-text-stroke: 0px;
+        }
+      }
+      .hero-h1 .line3 {
+        display: block;
+        color: var(--red);
+      }
+
+      .hero-right {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        align-self: flex-end;
+        padding-bottom: 8px;
+      }
+      .hero-desc {
+        font-family: "Archivo", sans-serif;
+        font-size: 1.05rem;
+        font-style: italic;
+        line-height: 1.7;
+        color: rgba(247, 242, 232, 0.65);
+        max-width: 420px;
+        border-left: 3px solid var(--red);
+        padding-left: 20px;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .btn-fat {
+        font-family: "Anton", sans-serif;
+        font-size: 1rem;
+        letter-spacing: 0.08em;
+        background: var(--yellow);
+        color: var(--black);
+        padding: 18px 44px;
+        text-decoration: none;
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s;
+      }
+      .btn-fat::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: var(--red);
+        transform: translateY(100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .btn-fat:hover::before {
+        transform: translateY(0);
+      }
+      .btn-fat:hover {
+        transform: skewX(-3deg);
+      }
+      .btn-fat span {
+        position: relative;
+        z-index: 1;
+      }
+      .btn-fat:hover span {
+        color: var(--white);
+      }
+      .btn-line {
+        font-family: "Anton", sans-serif;
+        font-size: 1rem;
+        letter-spacing: 0.08em;
+        background: transparent;
+        color: var(--white);
+        border: 2px solid var(--white);
+        padding: 18px 44px;
+        text-decoration: none;
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
+      .btn-line:hover {
+        background: var(--white);
+        color: var(--black);
+      }
+
+      /* SCROLL ARROW */
+      .hero-scroll {
+        position: absolute;
+        bottom: 28px;
+        right: 48px;
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.55rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: rgba(247, 242, 232, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: bounce 2s ease infinite;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(8px);
+        }
+      }
+
+      /* ── MARQUEE ── */
+      .mq {
+        overflow: hidden;
+        padding: 18px 0;
+        border-top: 2px solid var(--yellow);
+        border-bottom: 2px solid var(--yellow);
+      }
+      .mq-inner {
+        display: flex;
+        white-space: nowrap;
+        animation: mqScroll 14s linear infinite;
+      }
+      .mq:hover .mq-inner {
+        animation-play-state: paused;
+      }
+      .mq-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 24px;
+        padding: 0 24px;
+        font-family: "Anton", sans-serif;
+        font-size: 1.6rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--yellow);
+      }
+      .mq-star {
+        color: var(--red);
+        font-size: 1.2rem;
+      }
+      @keyframes mqScroll {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* ── MENU SECTION ── */
+      #menu {
+        padding: 100px 48px;
+        position: relative;
+        overflow: hidden;
+      }
+      #menu::before {
+        content: "MENU";
+        position: absolute;
+        top: -40px;
+        right: -60px;
+        font-family: "Anton", sans-serif;
+        font-size: 22rem;
+        color: rgba(232, 21, 27, 0.05);
+        letter-spacing: -0.03em;
+        pointer-events: none;
+        line-height: 1;
+        animation: bgTextDrift 12s ease infinite alternate;
+      }
+      @keyframes bgTextDrift {
+        from {
+          transform: translateX(0) rotate(-3deg);
+        }
+        to {
+          transform: translateX(-40px) rotate(-1deg);
+        }
+      }
+
+      .menu-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 80px;
+      }
+      .menu-title-block .eyebrow {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 12px;
+      }
+      .menu-title {
+        font-family: "Anton", sans-serif;
+        font-size: clamp(3rem, 7vw, 8rem);
+        line-height: 0.9;
+        letter-spacing: -0.01em;
+        color: var(--white);
+      }
+      .menu-title span {
+        color: var(--yellow);
+      }
+      .menu-subtitle {
+        font-family: "Archivo", sans-serif;
+        font-style: italic;
+        font-size: 1rem;
+        color: rgba(247, 242, 232, 0.45);
+        max-width: 320px;
+        text-align: right;
+        line-height: 1.6;
+      }
+
+      /* STAGGERED MENU GRID */
+      .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3px;
+      }
+      .menu-card {
+        position: relative;
+        overflow: hidden;
+        background: #111;
+        cursor: none;
+      }
+      .menu-card:nth-child(1) {
+        grid-row: span 2;
+      }
+      .menu-card:nth-child(4) {
+        grid-column: span 2;
+      }
+
+      .mc-img {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center;
+        transform: scale(1.06);
+        transition:
+          transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+          filter 0.7s;
+        filter: brightness(0.55) saturate(1.2);
+      }
+      .menu-card:hover .mc-img {
+        transform: scale(1.14);
+        filter: brightness(0.75) saturate(1.5);
+      }
+
+      .mc-body {
+        position: relative;
+        z-index: 2;
+        padding: 36px;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        background: linear-gradient(
+          to top,
+          rgba(13, 13, 13, 0.95) 0%,
+          transparent 55%
+        );
+      }
+      .menu-card:nth-child(1) .mc-body {
+        min-height: 580px;
+      }
+      .menu-card:nth-child(4) .mc-body {
+        min-height: 300px;
+      }
+
+      .mc-cat {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.55rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--yellow);
+        margin-bottom: 10px;
+      }
+      .mc-name {
+        font-family: "Anton", sans-serif;
+        font-size: clamp(1.6rem, 3vw, 3rem);
+        letter-spacing: 0.02em;
+        color: var(--white);
+        line-height: 1;
+        margin-bottom: 10px;
+      }
+      .mc-desc {
+        font-size: 0.88rem;
+        color: rgba(247, 242, 232, 0.5);
+        font-style: italic;
+        line-height: 1.55;
+        transform: translateY(14px);
+        opacity: 0;
+        transition:
+          transform 0.4s ease,
+          opacity 0.4s ease;
+        max-width: 360px;
+      }
+      .menu-card:hover .mc-desc {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      .mc-price {
+        font-family: "Unbounded", sans-serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--red);
+        margin-top: 14px;
+        transition: color 0.3s;
+      }
+      .menu-card:hover .mc-price {
+        color: var(--yellow);
+      }
+      .mc-arrow {
+        position: absolute;
+        top: 28px;
+        right: 28px;
+        width: 42px;
+        height: 42px;
+        background: var(--yellow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: var(--black);
+        transform: rotate(45deg) scale(0);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .menu-card:hover .mc-arrow {
+        transform: rotate(0deg) scale(1);
+      }
+
+      /* ── SPLAT SECTION ── */
+      #splat {
+        background: var(--yellow);
+        padding: 80px 48px;
+        position: relative;
+        overflow: hidden;
+      }
+      #splat::before {
+        content: "★";
+        position: absolute;
+        right: -60px;
+        top: -80px;
+        font-size: 28rem;
+        color: var(--red);
+        opacity: 0.07;
+        animation: spinStar 30s linear infinite;
+      }
+      @keyframes spinStar {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .splat-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+      }
+      .splat-text .big {
+        font-family: "Anton", sans-serif;
+        font-size: clamp(2.5rem, 6vw, 7rem);
+        line-height: 0.9;
+        letter-spacing: -0.02em;
+        color: var(--black);
+      }
+      .splat-text .big em {
+        font-family: "Archivo", sans-serif;
+        font-weight: 900;
+        font-style: italic;
+        color: var(--red);
+        display: block;
+      }
+      .splat-desc {
+        font-size: 1.05rem;
+        color: rgba(13, 13, 13, 0.6);
+        line-height: 1.7;
+        margin: 28px 0 40px;
+        max-width: 480px;
+      }
+      .btn-dark {
+        font-family: "Anton", sans-serif;
+        font-size: 1rem;
+        letter-spacing: 0.08em;
+        background: var(--black);
+        color: var(--yellow);
+        padding: 18px 48px;
+        text-decoration: none;
+        display: inline-block;
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
+      .btn-dark:hover {
+        background: var(--red);
+        color: var(--white);
+      }
+
+      .splat-imgs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 6px;
+        height: 480px;
+      }
+      .si {
+        overflow: hidden;
+        position: relative;
+      }
+      .si:nth-child(1) {
+        grid-row: span 2;
+      }
+      .si img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition:
+          transform 0.7s ease,
+          filter 0.7s;
+        filter: saturate(1.3);
+      }
+      .si:hover img {
+        transform: scale(1.08);
+      }
+
+      /* ── CHEF SECTION ── */
+      #chef {
+        padding: 100px 48px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+        background: var(--black);
+        position: relative;
+        overflow: hidden;
+      }
+      .chef-label {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 14px;
+      }
+      .chef-title {
+        font-family: "Anton", sans-serif;
+        font-size: clamp(3rem, 6vw, 7rem);
+        line-height: 0.9;
+        letter-spacing: -0.02em;
+        color: var(--white);
+        margin-bottom: 28px;
+      }
+      .chef-title span {
+        display: block;
+        color: transparent;
+        -webkit-text-stroke: 2px var(--red);
+      }
+      .chef-quote {
+        font-family: "Archivo", sans-serif;
+        font-size: 1.25rem;
+        font-style: italic;
+        color: rgba(247, 242, 232, 0.75);
+        line-height: 1.65;
+        border-left: 4px solid var(--yellow);
+        padding-left: 24px;
+        margin-bottom: 32px;
+      }
+      .chef-name {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--yellow);
+      }
+      .chef-role {
+        font-size: 0.82rem;
+        color: rgba(247, 242, 232, 0.35);
+        margin-top: 4px;
+      }
+      .chef-visual {
+        position: relative;
+      }
+      .chef-img {
+        width: 100%;
+        aspect-ratio: 3/4;
+        object-fit: cover;
+        filter: grayscale(20%) contrast(1.05);
+      }
+      .chef-badge {
+        position: absolute;
+        bottom: -24px;
+        left: -24px;
+        background: var(--red);
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        animation: badgeSpin 10s linear infinite;
+      }
+      @keyframes badgeSpin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .chef-badge-num {
+        font-family: "Anton", sans-serif;
+        font-size: 2.2rem;
+        color: var(--yellow);
+        line-height: 1;
+      }
+      .chef-badge-txt {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.42rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--white);
+        opacity: 0.8;
+        margin-top: 2px;
+        line-height: 1.4;
+      }
+
+      /* ── REVIEWS ── */
+      #reviews {
+        background: var(--red);
+        padding: 80px 48px;
+        overflow: hidden;
+        position: relative;
+      }
+      .rev-header {
+        margin-bottom: 60px;
+      }
+      .rev-big {
+        font-family: "Anton", sans-serif;
+        font-size: clamp(3rem, 7vw, 8rem);
+        line-height: 0.88;
+        color: var(--yellow);
+      }
+      .rev-big em {
+        color: var(--white);
+        font-style: normal;
+      }
+      .rev-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2px;
+      }
+      .rev-card {
+        background: rgba(13, 13, 13, 0.25);
+        padding: 36px;
+        transition: background 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+      .rev-card:hover {
+        background: rgba(13, 13, 13, 0.55);
+      }
+      .rev-card::before {
+        content: '"';
+        font-family: "Anton", sans-serif;
+        font-size: 8rem;
+        color: rgba(245, 230, 66, 0.08);
+        position: absolute;
+        top: -20px;
+        left: 20px;
+        line-height: 1;
+        pointer-events: none;
+      }
+      .rev-stars {
+        font-size: 0.7rem;
+        letter-spacing: 3px;
+        color: var(--yellow);
+        margin-bottom: 16px;
+      }
+      .rev-text {
+        font-family: "Archivo", sans-serif;
+        font-size: 1rem;
+        font-style: italic;
+        line-height: 1.7;
+        color: rgba(247, 242, 232, 0.85);
+        margin-bottom: 24px;
+      }
+      .rev-author {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .rev-av {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid var(--yellow);
+      }
+      .rev-av img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .rev-nm {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        color: var(--white);
+      }
+      .rev-loc {
+        font-size: 0.78rem;
+        color: rgba(247, 242, 232, 0.5);
+        margin-top: 3px;
+      }
+
+      /* ── BOOKING ── */
+      #booking {
+        background: var(--black);
+        padding: 100px 48px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+      #booking::before {
+        content: "EAT";
+        position: absolute;
+        right: -80px;
+        bottom: -60px;
+        font-family: "Anton", sans-serif;
+        font-size: 28rem;
+        color: rgba(247, 242, 232, 0.02);
+        letter-spacing: -0.04em;
+        line-height: 1;
+        pointer-events: none;
+      }
+      .book-label {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--yellow);
+        margin-bottom: 14px;
+      }
+      .book-title {
+        font-family: "Anton", sans-serif;
+        font-size: clamp(3rem, 6vw, 7rem);
+        line-height: 0.9;
+        color: var(--white);
+        margin-bottom: 24px;
+      }
+      .book-title span {
+        color: var(--red);
+      }
+      .book-desc {
+        font-size: 1rem;
+        color: rgba(247, 242, 232, 0.45);
+        line-height: 1.7;
+        font-style: italic;
+        margin-bottom: 44px;
+      }
+
+      .book-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .book-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .book-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .book-field label {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.55rem;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--yellow);
+      }
+      .book-field input,
+      .book-field select {
+        background: rgba(247, 242, 232, 0.05);
+        border: 1px solid rgba(247, 242, 232, 0.1);
+        color: var(--white);
+        padding: 16px 18px;
+        font-family: "Archivo", sans-serif;
+        font-size: 0.95rem;
+        outline: none;
+        transition:
+          border-color 0.3s,
+          background 0.3s;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+      .book-field input:focus,
+      .book-field select:focus {
+        border-color: var(--yellow);
+        background: rgba(245, 230, 66, 0.05);
+      }
+      .book-field select option {
+        background: var(--black);
+        color: var(--white);
+      }
+      .book-submit {
+        font-family: "Anton", sans-serif;
+        font-size: 1.1rem;
+        letter-spacing: 0.1em;
+        background: var(--yellow);
+        color: var(--black);
+        border: none;
+        padding: 22px;
+        cursor: none;
+        transition:
+          background 0.3s,
+          transform 0.2s;
+        margin-top: 8px;
+      }
+      .book-submit:hover {
+        background: var(--red);
+        color: var(--white);
+        transform: skewX(-2deg);
+      }
+
+      .book-info {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+      .bi-item {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+      }
+      .bi-icon {
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        border: 1px solid var(--yellow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--yellow);
+        font-size: 1.2rem;
+      }
+      .bi-title {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--white);
+        margin-bottom: 4px;
+      }
+      .bi-text {
+        font-size: 0.88rem;
+        color: rgba(247, 242, 232, 0.45);
+        line-height: 1.6;
+      }
+
+      /* ── FOOTER ── */
+      footer {
+        background: var(--yellow);
+        padding: 64px 48px 36px;
+      }
+      .ft-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 50px;
+        flex-wrap: wrap;
+        gap: 40px;
+      }
+      .ft-logo {
+        font-family: "Anton", sans-serif;
+        font-size: 4rem;
+        letter-spacing: 0.03em;
+        color: var(--black);
+      }
+      .ft-slogan {
+        font-family: "Archivo", sans-serif;
+        font-size: 1rem;
+        font-style: italic;
+        color: rgba(13, 13, 13, 0.5);
+        margin-top: 6px;
+      }
+      .ft-cols {
+        display: flex;
+        gap: 60px;
+      }
+      .ft-col h4 {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.6rem;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--red);
+        margin-bottom: 18px;
+      }
+      .ft-col ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .ft-col a {
+        font-size: 0.9rem;
+        color: rgba(13, 13, 13, 0.6);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .ft-col a:hover {
+        color: var(--black);
+      }
+      .ft-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 2px solid rgba(13, 13, 13, 0.12);
+        padding-top: 28px;
+      }
+      .ft-copy {
+        font-family: "Unbounded", sans-serif;
+        font-size: 0.58rem;
+        letter-spacing: 0.1em;
+        color: rgba(13, 13, 13, 0.4);
+      }
+      .ft-social {
+        display: flex;
+        gap: 12px;
+      }
+      .ft-social a {
+        width: 38px;
+        height: 38px;
+        background: var(--black);
+        color: var(--yellow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Anton", sans-serif;
+        font-size: 0.65rem;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        transition: background 0.3s;
+      }
+      .ft-social a:hover {
+        background: var(--red);
+      }
+
+      /* ── SCROLL REVEAL ── */
+      .rv {
+        opacity: 0;
+        transform: translateY(36px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .rv.on {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .rv-l {
+        opacity: 0;
+        transform: translateX(-44px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .rv-l.on {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .rv-r {
+        opacity: 0;
+        transform: translateX(44px);
+        transition:
+          opacity 0.7s ease,
+          transform 0.7s ease;
+      }
+      .rv-r.on {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1024px) {
+        nav {
+          padding: 18px 28px;
+        }
+        #hero .hero-content {
+          grid-template-columns: 1fr;
+          gap: 24px;
+          padding: 0 28px;
+        }
+        #menu,
+        #splat .splat-inner,
+        #chef,
+        #booking {
+          padding-left: 28px;
+          padding-right: 28px;
+          grid-template-columns: 1fr;
+        }
+        .menu-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .menu-card:nth-child(1) {
+          grid-row: span 1;
+        }
+        .menu-card:nth-child(4) {
+          grid-column: span 2;
+        }
+        .rev-grid {
+          grid-template-columns: 1fr;
+        }
+        .ft-top {
+          flex-direction: column;
+        }
+        .ft-cols {
+          flex-wrap: wrap;
+          gap: 36px;
+        }
+      }
+      @media (max-width: 640px) {
+        .nav-links {
+          display: none;
+        }
+        .menu-grid {
+          grid-template-columns: 1fr;
+        }
+        .menu-card:nth-child(4) {
+          grid-column: span 1;
+        }
+        .splat-imgs {
+          grid-template-columns: 1fr;
+        }
+        .book-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOADER -->
+    <div id="loader">
+      <div class="ldr-word">BRUTALE</div>
+      <div class="ldr-sub">Eat Loud. Live Louder.</div>
+    </div>
+
+    <!-- CURSOR -->
+    <div class="c-dot" id="cDot"></div>
+    <div class="c-txt" id="cTxt">EAT</div>
+
+    <!-- NAV -->
+    <nav>
+      <a href="#" class="logo">BRUTALE</a>
+      <div class="nav-r">
+        <ul class="nav-links">
+          <li><a href="#menu">Menu</a></li>
+          <li><a href="#chef">Chef</a></li>
+          <li><a href="#reviews">Reviews</a></li>
+          <li><a href="#booking">Book</a></li>
+        </ul>
+        <a href="#booking" class="nav-res">Reserve a Table</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-stripe"></div>
+      <div class="hero-content">
+        <div class="hero-left">
+          <div class="hero-tag">★ Open Nightly — 6pm to 2am</div>
+          <h1 class="hero-h1">
+            FOOD<br />
+            <span class="line2">IS</span><br />
+            <span class="line3">FURY.</span>
+          </h1>
+        </div>
+        <div class="hero-right">
+          <p class="hero-desc">
+            We don't cook to impress. We cook to ignite. Brutale is where raw
+            ingredients meet reckless imagination — every plate a provocation.
+          </p>
+          <div class="hero-actions">
+            <a href="#menu" class="btn-fat"><span>See The Menu</span></a>
+            <a href="#booking" class="btn-line">Book Tonight</a>
+          </div>
+        </div>
+      </div>
+      <div class="hero-scroll">↓ &nbsp;Scroll to devour</div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="mq">
+      <div class="mq-inner" id="mqInner">
+        <div class="mq-item">Fire-Roasted<span class="mq-star">★</span></div>
+        <div class="mq-item">Hand-Crafted<span class="mq-star">★</span></div>
+        <div class="mq-item">Locally Sourced<span class="mq-star">★</span></div>
+        <div class="mq-item">Brutally Honest<span class="mq-star">★</span></div>
+        <div class="mq-item">Wildly Seasonal<span class="mq-star">★</span></div>
+        <div class="mq-item">No Compromises<span class="mq-star">★</span></div>
+        <div class="mq-item">Fire-Roasted<span class="mq-star">★</span></div>
+        <div class="mq-item">Hand-Crafted<span class="mq-star">★</span></div>
+        <div class="mq-item">Locally Sourced<span class="mq-star">★</span></div>
+        <div class="mq-item">Brutally Honest<span class="mq-star">★</span></div>
+        <div class="mq-item">Wildly Seasonal<span class="mq-star">★</span></div>
+        <div class="mq-item">No Compromises<span class="mq-star">★</span></div>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <section id="menu">
+      <div class="menu-header rv">
+        <div class="menu-title-block">
+          <div class="eyebrow">Tonight's Selection</div>
+          <h2 class="menu-title">THE<br /><span>CARD.</span></h2>
+        </div>
+        <p class="menu-subtitle">
+          Dishes that don't ask for permission. A menu rewritten by the season,
+          the market, and whatever woke the chef up at 4am.
+        </p>
+      </div>
+      <div class="menu-grid">
+        <div class="menu-card rv" style="transition-delay: 0.05s">
+          <div
+            class="mc-img"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=85&quot;);
+            "
+          ></div>
+          <div class="mc-body">
+            <div class="mc-cat">Signature</div>
+            <div class="mc-name">Char-Kissed<br />Wagyu Tartare</div>
+            <div class="mc-desc">
+              Hand-cut A5 wagyu, smoked egg yolk, black truffle, toasted brioche
+              ash. Cold fire in a single bite.
+            </div>
+            <div class="mc-price">€38</div>
+          </div>
+          <div class="mc-arrow">→</div>
+        </div>
+        <div class="menu-card rv" style="transition-delay: 0.1s">
+          <div
+            class="mc-img"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=700&q=85&quot;);
+            "
+          ></div>
+          <div class="mc-body">
+            <div class="mc-cat">Small Plates</div>
+            <div class="mc-name">Burnt Honey Burrata</div>
+            <div class="mc-desc">
+              House-pulled burrata, torched wildflower honey, walnut crumble,
+              chilli oil, micro herbs.
+            </div>
+            <div class="mc-price">€22</div>
+          </div>
+          <div class="mc-arrow">→</div>
+        </div>
+        <div class="menu-card rv" style="transition-delay: 0.15s">
+          <div
+            class="mc-img"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=700&q=85&quot;);
+            "
+          ></div>
+          <div class="mc-body">
+            <div class="mc-cat">Main Event</div>
+            <div class="mc-name">Heritage Pork Collar</div>
+            <div class="mc-desc">
+              72hr slow-cooked, fermented chilli glaze, smoked potato fondant,
+              pickled mustard seeds.
+            </div>
+            <div class="mc-price">€44</div>
+          </div>
+          <div class="mc-arrow">→</div>
+        </div>
+        <div class="menu-card rv" style="transition-delay: 0.2s">
+          <div
+            class="mc-img"
+            style="
+              background-image: url(&quot;https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=900&q=85&quot;);
+            "
+          ></div>
+          <div class="mc-body">
+            <div class="mc-cat">Chef's Weekend Special</div>
+            <div class="mc-name">The Whole Damn Table</div>
+            <div class="mc-desc">
+              A seven-course guided destruction of what you thought dinner was.
+              Market price. No menu. Full trust.
+            </div>
+            <div class="mc-price">€95 / person</div>
+          </div>
+          <div class="mc-arrow">→</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPLAT (yellow) -->
+    <section id="splat">
+      <div class="splat-inner">
+        <div class="splat-text rv-l">
+          <div class="big">
+            We source.<br />
+            We season.<br />
+            <em>We never<br />apologise.</em>
+          </div>
+          <p class="splat-desc">
+            Every ingredient on our menu has a name, a farm, a story. We work
+            with 24 local growers, three independent fishermen, and a cheese
+            cave that's been running since 1887.
+          </p>
+          <a href="#menu" class="btn-dark">Full Menu →</a>
+        </div>
+        <div class="splat-imgs rv-r" style="transition-delay: 0.1s">
+          <div class="si">
+            <img
+              src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=700&q=85"
+              alt="Restaurant plating"
+            />
+          </div>
+          <div class="si">
+            <img
+              src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=500&q=85"
+              alt="Food close-up"
+            />
+          </div>
+          <div class="si">
+            <img
+              src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=500&q=85"
+              alt="Fresh produce"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHEF -->
+    <section id="chef">
+      <div class="chef-visual rv-l">
+        <img
+          class="chef-img"
+          src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800&q=85"
+          alt="Chef Marco Rossi"
+        />
+        <div class="chef-badge">
+          <div class="chef-badge-num">★2</div>
+          <div class="chef-badge-txt">Michelin<br />Stars</div>
+        </div>
+      </div>
+      <div class="rv-r" style="transition-delay: 0.1s">
+        <div class="chef-label">The Mind Behind It</div>
+        <h2 class="chef-title">MARCO<br /><span>ROSSI</span></h2>
+        <blockquote class="chef-quote">
+          "Cooking isn't about comfort. It's about making someone feel something
+          they've never felt before through food. That's the only goal worth
+          having."
+        </blockquote>
+        <div class="chef-name">Marco Rossi</div>
+        <div class="chef-role">
+          Executive Chef & Founder · 22 years in professional kitchens
+        </div>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section id="reviews">
+      <div class="rev-header rv">
+        <h2 class="rev-big">THEY<br /><em>SAID</em><br />IT.</h2>
+      </div>
+      <div class="rev-grid">
+        <div class="rev-card rv" style="transition-delay: 0.06s">
+          <div class="rev-stars">★★★★★</div>
+          <p class="rev-text">
+            "I've eaten in 40 countries. Brutale cracked my top three in a
+            single meal. The wagyu tartare is an act of violence in the best
+            possible way."
+          </p>
+          <div class="rev-author">
+            <div class="rev-av">
+              <img
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80"
+                alt="James"
+              />
+            </div>
+            <div>
+              <div class="rev-nm">James Farrow</div>
+              <div class="rev-loc">Food Critic, Le Monde Gastronomique</div>
+            </div>
+          </div>
+        </div>
+        <div class="rev-card rv" style="transition-delay: 0.12s">
+          <div class="rev-stars">★★★★★</div>
+          <p class="rev-text">
+            "The seven-course blind menu is non-negotiable. I cried during the
+            third course. I'm not sure why. I'm going back next week."
+          </p>
+          <div class="rev-author">
+            <div class="rev-av">
+              <img
+                src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80"
+                alt="Elena"
+              />
+            </div>
+            <div>
+              <div class="rev-nm">Elena Marchetti</div>
+              <div class="rev-loc">Milan, Italy</div>
+            </div>
+          </div>
+        </div>
+        <div class="rev-card rv" style="transition-delay: 0.18s">
+          <div class="rev-stars">★★★★★</div>
+          <p class="rev-text">
+            "Brutale doesn't serve you dinner. It performs it. I came for the
+            food and left questioning my entire relationship with eating."
+          </p>
+          <div class="rev-author">
+            <div class="rev-av">
+              <img
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80"
+                alt="Oliver"
+              />
+            </div>
+            <div>
+              <div class="rev-nm">Oliver Chen</div>
+              <div class="rev-loc">The Guardian Food</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOKING -->
+    <section id="booking">
+      <div class="rv-l">
+        <div class="book-label">Secure Your Seat</div>
+        <h2 class="book-title">RESERVE<br />YOUR<br /><span>TABLE.</span></h2>
+        <p class="book-desc">
+          Tables go fast. We seat 42 guests per service — no more. Book early,
+          or take your chances at the door.
+        </p>
+        <div class="book-info">
+          <div class="bi-item">
+            <div class="bi-icon">🕕</div>
+            <div>
+              <div class="bi-title">Hours</div>
+              <div class="bi-text">
+                Tue–Sun · 6:00pm – 2:00am<br />Kitchen closes at midnight
+              </div>
+            </div>
+          </div>
+          <div class="bi-item">
+            <div class="bi-icon">📍</div>
+            <div>
+              <div class="bi-title">Location</div>
+              <div class="bi-text">
+                Via della Brutalità 7<br />Milan, Italy 20121
+              </div>
+            </div>
+          </div>
+          <div class="bi-item">
+            <div class="bi-icon">📞</div>
+            <div>
+              <div class="bi-title">Phone</div>
+              <div class="bi-text">+39 02 8765 4321</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rv-r" style="transition-delay: 0.12s">
+        <form class="book-form" onsubmit="return false;">
+          <div class="book-row">
+            <div class="book-field">
+              <label>First Name</label>
+              <input type="text" placeholder="Marco" />
+            </div>
+            <div class="book-field">
+              <label>Last Name</label>
+              <input type="text" placeholder="Rossi" />
+            </div>
+          </div>
+          <div class="book-field">
+            <label>Email</label>
+            <input type="email" placeholder="you@example.com" />
+          </div>
+          <div class="book-row">
+            <div class="book-field">
+              <label>Date</label>
+              <input type="date" />
+            </div>
+            <div class="book-field">
+              <label>Time</label>
+              <select>
+                <option>6:00pm</option>
+                <option>7:00pm</option>
+                <option>8:00pm</option>
+                <option>9:00pm</option>
+                <option>10:00pm</option>
+              </select>
+            </div>
+          </div>
+          <div class="book-field">
+            <label>Party Size</label>
+            <select>
+              <option>1 person</option>
+              <option>2 people</option>
+              <option>3 people</option>
+              <option>4 people</option>
+              <option>5–6 people</option>
+              <option>7+ people</option>
+            </select>
+          </div>
+          <button class="book-submit" type="submit">
+            Confirm Reservation →
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="ft-top">
+        <div>
+          <div class="ft-logo">BRUTALE</div>
+          <div class="ft-slogan">Eat Loud. Live Louder.</div>
+        </div>
+        <div class="ft-cols">
+          <div class="ft-col">
+            <h4>Visit</h4>
+            <ul>
+              <li><a href="#">Menu</a></li>
+              <li><a href="#">Wine List</a></li>
+              <li><a href="#">Chef's Table</a></li>
+              <li><a href="#">Private Dining</a></li>
+            </ul>
+          </div>
+          <div class="ft-col">
+            <h4>Info</h4>
+            <ul>
+              <li><a href="#">Our Story</a></li>
+              <li><a href="#">The Team</a></li>
+              <li><a href="#">Press</a></li>
+              <li><a href="#">Careers</a></li>
+            </ul>
+          </div>
+          <div class="ft-col">
+            <h4>Contact</h4>
+            <ul>
+              <li><a href="#">Reservations</a></li>
+              <li><a href="#">Events</a></li>
+              <li><a href="#">Gift Cards</a></li>
+              <li><a href="#">Partners</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="ft-bottom">
+        <div class="ft-copy">
+          © 2025 Brutale Restaurant. All rights reserved.
+        </div>
+        <div class="ft-social">
+          <a href="#">IG</a><a href="#">TK</a><a href="#">YT</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // LOADER
+      window.addEventListener("load", () => {
+        setTimeout(
+          () => document.getElementById("loader").classList.add("out"),
+          2000,
+        );
+      });
+
+      // CURSOR
+      const dot = document.getElementById("cDot"),
+        txt = document.getElementById("cTxt");
+      let mx = 0,
+        my = 0;
+      document.addEventListener("mousemove", (e) => {
+        mx = e.clientX;
+        my = e.clientY;
+        dot.style.left = mx + "px";
+        dot.style.top = my + "px";
+        txt.style.left = mx + 20 + "px";
+        txt.style.top = my - 8 + "px";
+      });
+      const words = ["EAT", "NOW", "YUM", "🔥", "BOOK", "WOW", "HOT"];
+      let wi = 0;
+      setInterval(() => {
+        wi = (wi + 1) % words.length;
+        txt.textContent = words[wi];
+      }, 900);
+      document
+        .querySelectorAll(".menu-card,.btn-fat,.nav-res,.book-submit,.rev-card")
+        .forEach((el) => {
+          el.addEventListener("mouseenter", () => {
+            dot.style.transform = "translate(-50%,-50%) scale(2.5)";
+            txt.style.opacity = "1";
+          });
+          el.addEventListener("mouseleave", () => {
+            dot.style.transform = "translate(-50%,-50%) scale(1)";
+            txt.style.opacity = "0";
+          });
+        });
+
+      // SCROLL REVEAL
+      document.querySelectorAll(".rv,.rv-l,.rv-r").forEach((el) => {
+        new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) e.target.classList.add("on");
+          },
+          { threshold: 0.08, rootMargin: "0px 0px -30px 0px" },
+        ).observe(el);
+      });
+
+      // SMOOTH SCROLL
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          const t = document.querySelector(a.getAttribute("href"));
+          if (t) {
+            e.preventDefault();
+            t.scrollIntoView({ behavior: "smooth" });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
